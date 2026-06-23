@@ -26,197 +26,51 @@
     max-width: 480px;
     margin: 0 auto;
   }
-  h1 {
-    font-size: 18px;
-    text-align: center;
-    margin-bottom: 16px;
-    color: var(--text);
-  }
-  .panel {
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 14px;
-  }
-  .panel h2 {
-    font-size: 13px;
-    color: var(--text-dim);
-    margin: 0 0 10px 0;
-    font-weight: 600;
-  }
-  .status-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  .state-text {
-    font-size: 16px;
-    font-weight: 600;
-  }
+  h1 { font-size: 18px; text-align: center; margin-bottom: 16px; }
+  .panel { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .panel h2 { font-size: 13px; color: var(--text-dim); margin: 0 0 10px 0; font-weight: 600; }
+  .status-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .state-text { font-size: 16px; font-weight: 600; }
   .state-idle { color: var(--text); }
   .state-calibrating { color: var(--accent); }
   .state-snoring { color: var(--warn); }
-  .mono {
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    color: var(--text-dim);
-    font-size: 13px;
-  }
-  .meter-track {
-    height: 28px;
-    background: #000;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-    border: 1px solid var(--panel-border);
-  }
-  .meter-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent));
-    width: 0%;
-    transition: width 0.08s linear, background 0.2s;
-  }
+  .mono { font-family: "SF Mono", Menlo, Consolas, monospace; color: var(--text-dim); font-size: 13px; }
+  .meter-track { height: 28px; background: #000; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid var(--panel-border); }
+  .meter-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent)); width: 0%; transition: width 0.08s linear, background 0.2s; }
   .meter-fill.hot { background: linear-gradient(90deg, var(--warn), var(--bad)); }
-  .meter-baseline {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--text-dim);
-    left: 0%;
-  }
-  .dot-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-    font-size: 14px;
-  }
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--panel-border);
-    flex-shrink: 0;
-  }
+  .meter-baseline { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--text-dim); left: 0%; }
+  .dot-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--panel-border); flex-shrink: 0; }
   .dot.on { background: var(--good); box-shadow: 0 0 8px var(--good); }
-  button {
-    width: 100%;
-    padding: 14px;
-    border-radius: 10px;
-    border: none;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-bottom: 10px;
-  }
+  button { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
   .btn-primary { background: var(--accent); color: #07101f; }
   .btn-secondary { background: var(--panel-border); color: var(--text); }
-  .btn-primary:disabled, .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
-
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
   .seg-control { display: flex; gap: 6px; margin-bottom: 4px; }
-  .seg-btn {
-    flex: 1;
-    padding: 10px 4px;
-    font-size: 12px;
-    border-radius: 8px;
-    border: 1px solid var(--panel-border);
-    background: var(--bg);
-    color: var(--text-dim);
-    cursor: pointer;
-    margin-bottom: 0;
-  }
+  .seg-btn { flex: 1; padding: 10px 4px; font-size: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--bg); color: var(--text-dim); cursor: pointer; margin-bottom: 0; }
   .seg-btn.active { background: var(--accent); color: #07101f; border-color: var(--accent); font-weight: 600; }
   .seg-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  input[type="text"] {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--panel-border);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-
-  .mode-card {
-    border: 1px solid var(--panel-border);
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
-    transition: border-color 0.2s, background 0.2s;
-  }
+  input[type="text"] { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--bg); color: var(--text); font-size: 14px; margin-bottom: 10px; }
+  .mode-card { border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px; margin-bottom: 10px; transition: border-color 0.2s, background 0.2s; }
   .mode-card.active { border-color: var(--accent); background: rgba(77,163,255,0.08); }
-  .mode-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  .mode-head { display: flex; justify-content: space-between; align-items: center; }
   .mode-title { font-size: 14px; font-weight: 600; }
   .mode-caption { font-size: 12px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
   .mode-caption.warn-text { color: var(--warn); }
-
-  .switch {
-    position: relative;
-    width: 44px;
-    height: 26px;
-    flex-shrink: 0;
-  }
+  .switch { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
   .switch input { opacity: 0; width: 0; height: 0; }
-  .switch .track {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background: var(--panel-border);
-    border-radius: 26px;
-    transition: background 0.2s;
-  }
-  .switch .track:before {
-    content: "";
-    position: absolute;
-    height: 20px;
-    width: 20px;
-    left: 3px;
-    bottom: 3px;
-    background: var(--text);
-    border-radius: 50%;
-    transition: transform 0.2s;
-  }
+  .switch .track { position: absolute; cursor: pointer; inset: 0; background: var(--panel-border); border-radius: 26px; transition: background 0.2s; }
+  .switch .track:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: var(--text); border-radius: 50%; transition: transform 0.2s; }
   .switch input:checked + .track { background: var(--accent); }
   .switch input:checked + .track:before { transform: translateX(18px); background: #07101f; }
-
-  .slider-row {
-    margin-bottom: 14px;
-  }
-  .slider-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    color: var(--text-dim);
-    margin-bottom: 4px;
-  }
+  .slider-row { margin-bottom: 14px; }
+  .slider-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-dim); margin-bottom: 4px; }
   .slider-label span.value { color: var(--text); font-weight: 600; }
-  input[type="range"] {
-    width: 100%;
-  }
-  .log-panel {
-    max-height: 160px;
-    overflow-y: auto;
-    font-size: 12px;
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    color: var(--text-dim);
-    line-height: 1.6;
-  }
+  input[type="range"] { width: 100%; }
+  .log-panel { max-height: 160px; overflow-y: auto; font-size: 12px; font-family: "SF Mono", Menlo, Consolas, monospace; color: var(--text-dim); line-height: 1.6; }
   .log-panel div.snore { color: var(--warn); }
   .log-panel div.mode { color: var(--accent); }
-  .hint {
-    font-size: 12px;
-    color: var(--text-dim);
-    text-align: center;
-    margin-top: 4px;
-  }
+  .hint { font-size: 12px; color: var(--text-dim); text-align: center; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -224,7 +78,7 @@
 <h1>🛌 SnoreGuard 網頁版測試</h1>
 
 <div class="panel">
-  <h2>連線模式（執行中無法切換）</h2>
+  <h2>連線模式</h2>
   <div class="seg-control" id="connModeControl">
     <button class="seg-btn active" data-mode="standalone">單機測試</button>
     <button class="seg-btn" data-mode="detector">雙機－偵測端</button>
@@ -234,7 +88,7 @@
 
 <div class="panel" id="roomPanel" style="display:none;">
   <h2>房間連線</h2>
-  <input type="text" id="roomCodeInput" placeholder="雙方輸入同一個房間代碼，例如 abc123">
+  <input type="text" id="roomCodeInput" placeholder="房間代碼，例如 abc123">
   <button class="btn-secondary" id="connectBtn">連線到房間</button>
   <div class="dot-row">
     <div class="dot" id="connDot"></div>
@@ -261,94 +115,75 @@
 </div>
 
 <div class="panel">
-  <button class="btn-primary" id="startBtn">開始偵測（需要麥克風權限）</button>
+  <button class="btn-primary" id="startBtn">開始</button>
   <button class="btn-secondary" id="recalBtn" disabled>重新校準環境音</button>
 </div>
 
 <div class="panel" id="modePanel">
-  <h2>介入模式（互斥，可即時切換比較）</h2>
+  <h2>介入模式</h2>
 
   <div class="mode-card" id="cardPhaseInvert">
     <div class="mode-head">
-      <span class="mode-title">1️⃣ 原始 ANC 模式（相位反轉嘗試）</span>
+      <span class="mode-title">1️⃣ ANC（相位反轉）</span>
       <label class="switch">
         <input type="checkbox" id="switchPhaseInvert">
         <span class="track"></span>
       </label>
     </div>
-    <div class="mode-caption">偵測到規律打呼後，擷取麥克風訊號並反相播放，嘗試抵消。</div>
-    <div class="mode-caption warn-text">⚠️ 單機模式：本地錄放本身就有處理延遲。雙機模式：偵測端會把錄到的聲音即時串流給播放端反相播放，但多了一段網路傳輸延遲，預期效果只會比單機測試更差。保留讓你親自驗證兩種情況。</div>
+    <div class="mode-caption warn-text">⚠️ 預期效果有限：處理延遲導致相位對不齊。用來驗證物理限制。</div>
   </div>
 
   <div class="mode-card active" id="cardProportional">
     <div class="mode-head">
-      <span class="mode-title">2️⃣ 等比例白噪音模式</span>
+      <span class="mode-title">2️⃣ 等比例白噪音</span>
       <label class="switch">
         <input type="checkbox" id="switchProportional" checked>
         <span class="track"></span>
       </label>
     </div>
-    <div class="mode-caption">不等「確認打呼」狀態，分貝越高於環境基準，白噪音音量等比例即時提高。雙機模式下由偵測端計算強度值後傳給播放端執行。</div>
+    <div class="mode-caption">分貝越高於基準，白噪音音量等比例提高。推薦模式。</div>
   </div>
 </div>
 
 <div class="panel">
-  <h2>共用參數</h2>
+  <h2>參數調整</h2>
   <div class="slider-row" id="thresholdRow">
-    <div class="slider-label"><span>觸發閾值（高於基準多少 dB 起算）</span><span class="value" id="thresholdVal">12</span></div>
+    <div class="slider-label"><span>觸發閾值</span><span class="value" id="thresholdVal">12</span></div>
     <input type="range" id="thresholdSlider" min="5" max="25" step="1" value="12">
   </div>
   <div class="slider-row" id="pulseCountRow">
-    <div class="slider-label"><span>需連續幾次規律脈衝才判定打呼（影響模式1開關時機）</span><span class="value" id="pulseCountVal">3</span></div>
+    <div class="slider-label"><span>規律脈衝次數</span><span class="value" id="pulseCountVal">3</span></div>
     <input type="range" id="pulseCountSlider" min="2" max="6" step="1" value="3">
   </div>
   <div class="slider-row" id="clearDelayRow">
-    <div class="slider-label"><span>安靜多久後解除打呼狀態（秒）</span><span class="value" id="clearDelayVal">6</span></div>
+    <div class="slider-label"><span>解除延遲（秒）</span><span class="value" id="clearDelayVal">6</span></div>
     <input type="range" id="clearDelaySlider" min="2" max="15" step="1" value="6">
   </div>
   <div class="slider-row" id="maxVolRow">
-    <div class="slider-label"><span>白噪音音量上限（模式2用）</span><span class="value" id="maxVolVal">60%</span></div>
+    <div class="slider-label"><span>白噪音音量上限</span><span class="value" id="maxVolVal">60%</span></div>
     <input type="range" id="maxVolSlider" min="0" max="100" step="5" value="60">
   </div>
   <div class="slider-row" id="rangeRow">
-    <div class="slider-label"><span>等比例反應範圍寬度（dB，模式2用）</span><span class="value" id="rangeVal">15</span></div>
+    <div class="slider-label"><span>反應範圍寬度</span><span class="value" id="rangeVal">15</span></div>
     <input type="range" id="rangeSlider" min="5" max="30" step="1" value="15">
   </div>
-  <div class="slider-row" id="streamVolRow">
-    <div class="slider-label"><span>相位反轉輸出音量上限（模式1用，安全上限）</span><span class="value" id="streamVolVal">50%</span></div>
-    <input type="range" id="streamVolSlider" min="0" max="100" step="5" value="50">
-  </div>
-  <div class="hint">調整滑桿可即時生效，不需要重新開始</div>
 </div>
 
 <div class="panel">
-  <div class="status-row" style="margin-bottom:8px;">
-    <strong style="font-size:13px;">事件記錄</strong>
-  </div>
+  <div class="status-row" style="margin-bottom:8px;"><strong style="font-size:13px;">事件記錄</strong></div>
   <div class="log-panel" id="logPanel"></div>
 </div>
 
 <script>
 (() => {
-  // ---------- 可調參數 ----------
-  let thresholdOffsetDb = 12;
-  let pulsesNeededToConfirmSnoring = 3;
-  let snoringClearDelay = 6;
-  let maskingMaxVolume = 0.6;
-  let proportionalRangeDb = 15;
-  let phaseInvertOutputVolume = 0.5;
+  let thresholdOffsetDb = 12, pulsesNeededToConfirmSnoring = 3, snoringClearDelay = 6;
+  let maskingMaxVolume = 0.6, proportionalRangeDb = 15;
+  const minPulseDuration = 0.25, pulseIntervalMin = 1.5, pulseIntervalMax = 8.0;
+  const calibrationDuration = 5, smoothingFactor = 0.15;
 
-  const minPulseDuration = 0.25;
-  const pulseIntervalMin = 1.5;
-  const pulseIntervalMax = 8.0;
-  const calibrationDuration = 5;
-  const smoothingFactor = 0.15;
-  const streamChunkSize = 2048; // 約 46ms @ 44.1kHz，決定串流延遲與封包頻率
-
-  let activeMode = 'proportional'; // 'proportional' | 'phaseInvert'
-  let connectionMode = 'standalone'; // 'standalone' | 'detector' | 'player'
-
-  // ---------- DOM ----------
+  let activeMode = 'proportional', connectionMode = 'standalone';
+  
+  // DOM 綁定
   const stateText = document.getElementById('stateText');
   const dbText = document.getElementById('dbText');
   const baselineText = document.getElementById('baselineText');
@@ -359,8 +194,6 @@
   const startBtn = document.getElementById('startBtn');
   const recalBtn = document.getElementById('recalBtn');
   const logPanel = document.getElementById('logPanel');
-  const cardPhaseInvert = document.getElementById('cardPhaseInvert');
-  const cardProportional = document.getElementById('cardProportional');
   const switchPhaseInvert = document.getElementById('switchPhaseInvert');
   const switchProportional = document.getElementById('switchProportional');
   const roomPanel = document.getElementById('roomPanel');
@@ -385,37 +218,30 @@
   bindSlider('clearDelaySlider', 'clearDelayVal', v => snoringClearDelay = v);
   bindSlider('maxVolSlider', 'maxVolVal', v => maskingMaxVolume = v / 100, v => v + '%');
   bindSlider('rangeSlider', 'rangeVal', v => proportionalRangeDb = v);
-  bindSlider('streamVolSlider', 'streamVolVal', v => phaseInvertOutputVolume = v / 100, v => v + '%');
 
   function setMode(mode) {
     activeMode = mode;
     switchPhaseInvert.checked = mode === 'phaseInvert';
     switchProportional.checked = mode === 'proportional';
-    cardPhaseInvert.classList.toggle('active', mode === 'phaseInvert');
-    cardProportional.classList.toggle('active', mode === 'proportional');
-    log('切換到模式：' + (mode === 'phaseInvert' ? '原始 ANC（相位反轉）' : '等比例白噪音'), 'mode');
+    document.getElementById('cardPhaseInvert').classList.toggle('active', mode === 'phaseInvert');
+    document.getElementById('cardProportional').classList.toggle('active', mode === 'proportional');
+    log('模式：' + (mode === 'phaseInvert' ? 'ANC' : '白噪音'), 'mode');
   }
   switchPhaseInvert.addEventListener('change', () => { if (switchPhaseInvert.checked) setMode('phaseInvert'); else setMode('proportional'); });
   switchProportional.addEventListener('change', () => { if (switchProportional.checked) setMode('proportional'); else setMode('phaseInvert'); });
 
-  // ---------- 連線模式切換 ----------
   function applyVisibilityForMode() {
     const isStandalone = connectionMode === 'standalone';
-    const isDetector = connectionMode === 'detector';
     const isPlayer = connectionMode === 'player';
-
     roomPanel.style.display = isStandalone ? 'none' : 'block';
     modePanel.style.display = isPlayer ? 'none' : 'block';
-
     document.getElementById('thresholdRow').style.display = isPlayer ? 'none' : 'block';
     document.getElementById('pulseCountRow').style.display = isPlayer ? 'none' : 'block';
     document.getElementById('clearDelayRow').style.display = isPlayer ? 'none' : 'block';
     document.getElementById('rangeRow').style.display = isPlayer ? 'none' : 'block';
-    document.getElementById('maxVolRow').style.display = isDetector ? 'none' : 'block';
-    document.getElementById('streamVolRow').style.display = isDetector ? 'none' : 'block';
-
+    document.getElementById('maxVolRow').style.display = isPlayer ? 'none' : 'block';
     recalBtn.style.display = isPlayer ? 'none' : 'block';
-    startBtn.textContent = isPlayer ? '啟用播放（不需要麥克風）' : '開始偵測（需要麥克風權限）';
+    startBtn.textContent = isPlayer ? '啟用播放' : '開始偵測';
     startBtn.disabled = !isStandalone && !roomConnected;
   }
 
@@ -425,84 +251,59 @@
       connectionMode = btn.dataset.mode;
       segButtons.forEach(b => b.classList.toggle('active', b === btn));
       applyVisibilityForMode();
-      log('連線模式切換為：' + (connectionMode === 'standalone' ? '單機測試' : connectionMode === 'detector' ? '雙機－偵測端' : '雙機－播放端'), 'mode');
+      log('模式：' + (connectionMode === 'standalone' ? '單機' : connectionMode === 'detector' ? '偵測端' : '播放端'), 'mode');
     });
   });
 
-  // ---------- WebSocket ----------
-  let ws = null;
-  let roomConnected = false;
-  let lastReceivedState = null;
-
+  let ws = null, roomConnected = false;
   function toggleRoomConnection() {
     if (ws) { ws.close(); return; }
     const code = roomCodeInput.value.trim();
     if (!code) { alert('請輸入房間代碼'); return; }
     const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = wsProtocol + '//' + location.host + '/ws/' + encodeURIComponent(code);
-    ws = new WebSocket(wsUrl);
+    ws = new WebSocket(wsProtocol + '//' + location.host + '/ws/' + encodeURIComponent(code));
     ws.binaryType = 'arraybuffer';
-
     ws.onopen = () => {
       roomConnected = true;
       connDot.classList.add('on');
-      connText.textContent = '已連線，等待對方加入';
-      connectBtn.textContent = '取消連線';
+      connText.textContent = '已配對';
+      connectBtn.textContent = '取消';
       startBtn.disabled = false;
-      log('已連線到房間：' + code, 'mode');
+      log('已連線：' + code, 'mode');
     };
     ws.onclose = () => {
       roomConnected = false;
       ws = null;
       connDot.classList.remove('on');
       connText.textContent = '未連線';
-      connectBtn.textContent = '連線到房間';
+      connectBtn.textContent = '連線';
       startBtn.disabled = connectionMode !== 'standalone';
-      log('連線已關閉');
     };
-    ws.onerror = () => log('連線發生錯誤，請確認房間代碼與網路狀態');
+    ws.onerror = () => log('連線錯誤');
     ws.onmessage = (e) => {
       if (e.data instanceof ArrayBuffer) {
-        if (connectionMode === 'player') handleIncomingAudioChunk(e.data);
-        return;
+        if (connectionMode === 'player') handleIncomingAudio(e.data);
+      } else {
+        try { handleMsg(JSON.parse(e.data)); } catch(err) {}
       }
-      let msg;
-      try { msg = JSON.parse(e.data); } catch (err) { return; }
-      handleSocketMessage(msg);
     };
   }
   connectBtn.addEventListener('click', toggleRoomConnection);
 
-  function handleSocketMessage(msg) {
+  function handleMsg(msg) {
     if (msg.type === 'peer_joined') {
-      connText.textContent = '已配對成功';
-      log('對方已加入房間', 'mode');
-    } else if (msg.type === 'peer_left') {
-      connText.textContent = '已連線，等待對方加入';
-      log('對方已離開房間');
+      connText.textContent = '已配對';
+      log('對方加入', 'mode');
     } else if (msg.type === 'telemetry' && connectionMode === 'player') {
-      applyReceivedTelemetry(msg);
+      applyRemoteTelemetry(msg);
     }
   }
 
-  // ---------- 狀態 ----------
-  let state = 'stopped';
-  let audioCtx, analyser, micSource, dataBuffer;
-  let maskGain, maskSource;
-  let invertProcessor, invertGain;
-  let streamProcessor, streamOutGain;
-  let playerNextPlayTime = 0;
-  let streamIdleTimer = null;
-  let pollTimer;
-
-  let calibrationStart = null;
-  let calibrationSamples = [];
-  let ambientBaseline = -50;
-  let smoothedDb = -50;
-
-  let pulseStart = null;
-  let confirmedPulses = [];
-  let lastSnoreAt = null;
+  let state = 'stopped', audioCtx, analyser, micSource, dataBuffer;
+  let maskGain, maskSource, invertGain, pollTimer;
+  let calibrationStart = null, calibrationSamples = [];
+  let ambientBaseline = -50, smoothedDb = -50;
+  let pulseStart = null, confirmedPulses = [], lastSnoreAt = null;
 
   function log(msg, cls) {
     const div = document.createElement('div');
@@ -518,25 +319,30 @@
     stateText.className = 'state-text ' + cssClass;
   }
 
-  // ---------- 啟動 / 停止 ----------
+  function updateInterveningUI(isOn) {
+    maskDot.className = 'dot' + (isOn ? ' on' : '');
+    maskText.textContent = isOn ? '介入中' : '未介入';
+  }
+
   async function start() {
     if (connectionMode === 'player') {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') await audioCtx.resume();
-      setupMaskingNoise();
-      setupStreamPlayback();
-      playerNextPlayTime = 0;
-      state = 'idle';
-      setStateUI('等待偵測端資料...', 'state-idle');
-      startBtn.textContent = '停止播放';
-      log('播放端已啟用，等待資料');
-      return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        setupMaskingNoise();
+        state = 'idle';
+        setStateUI('等待對方...', 'state-idle');
+        log('播放端已啟用');
+        startBtn.textContent = '停止';
+        return;
+      } catch(err) {
+        log('播放端初始化失敗：' + err.message);
+        return;
+      }
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: {
-        echoCancellation: true, noiseSuppression: false, autoGainControl: false
-      }});
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: false }});
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') await audioCtx.resume();
       micSource = audioCtx.createMediaStreamSource(stream);
@@ -545,66 +351,39 @@
       dataBuffer = new Float32Array(analyser.fftSize);
       micSource.connect(analyser);
 
-      if (connectionMode === 'standalone') {
-        setupMaskingNoise();
-        setupPhaseInvert();
-      } else if (connectionMode === 'detector') {
-        setupAudioStreamer();
-      }
+      setupMaskingNoise();
+      if (connectionMode === 'standalone') setupPhaseInvert();
 
       calibrationStart = Date.now();
       calibrationSamples = [];
       state = 'calibrating';
-      setStateUI('校準環境音中...', 'state-calibrating');
-      log('開始校準環境音（' + calibrationDuration + ' 秒）');
+      setStateUI('校準中...', 'state-calibrating');
+      log('開始校準');
 
       pollTimer = setInterval(tick, 80);
-      startBtn.textContent = connectionMode === 'detector' ? '停止偵測（傳送中）' : '停止偵測';
+      startBtn.textContent = '停止';
       recalBtn.disabled = false;
-    } catch (err) {
-      log('麥克風權限取得失敗：' + err.message);
-      alert('無法取得麥克風權限，請確認瀏覽器設定或改用 HTTPS 網址開啟此頁面。');
+    } catch(err) {
+      log('初始化失敗：' + err.message);
     }
   }
 
   function stop() {
     clearInterval(pollTimer);
-    clearTimeout(streamIdleTimer);
     if (maskSource) { try { maskSource.stop(); } catch(e){} }
-    if (invertProcessor) { try { invertProcessor.disconnect(); } catch(e){} }
-    if (streamProcessor) { try { streamProcessor.disconnect(); } catch(e){} }
     if (audioCtx) { try { audioCtx.close(); } catch(e){} }
     state = 'stopped';
-    setStateUI(connectionMode === 'player' ? '已停止播放' : '已停止', 'state-idle');
+    setStateUI('已停止', 'state-idle');
     updateInterveningUI(false);
-    startBtn.textContent = connectionMode === 'player' ? '啟用播放（不需要麥克風）' : '開始偵測（需要麥克風權限）';
+    startBtn.textContent = connectionMode === 'player' ? '啟用播放' : '開始偵測';
     recalBtn.disabled = true;
   }
 
-  function recalibrate() {
-    if (connectionMode === 'player') return;
-    state = 'calibrating';
-    calibrationStart = Date.now();
-    calibrationSamples = [];
-    confirmedPulses = [];
-    pulseStart = null;
-    setStateUI('校準環境音中...', 'state-calibrating');
-    log('手動重新校準');
-  }
-
-  startBtn.addEventListener('click', () => {
-    if (state === 'stopped') start(); else stop();
-  });
-  recalBtn.addEventListener('click', recalibrate);
-
-  // ---------- 遮蔽音（單機 + 播放端共用） ----------
   function setupMaskingNoise() {
-    const bufferSeconds = 4;
-    const sampleRate = audioCtx.sampleRate;
+    const bufferSeconds = 4, sampleRate = audioCtx.sampleRate;
     const frameCount = sampleRate * bufferSeconds;
     const buffer = audioCtx.createBuffer(1, frameCount, sampleRate);
     const data = buffer.getChannelData(0);
-
     let last = 0;
     for (let i = 0; i < frameCount; i++) {
       const white = Math.random() * 2 - 1;
@@ -612,211 +391,127 @@
       last = Math.max(-1, Math.min(1, last));
       data[i] = last * 0.8;
     }
-
     maskSource = audioCtx.createBufferSource();
     maskSource.buffer = buffer;
     maskSource.loop = true;
-
     maskGain = audioCtx.createGain();
     maskGain.gain.value = 0;
-
     maskSource.connect(maskGain);
     maskGain.connect(audioCtx.destination);
-    maskSource.start();
+    try {
+      maskSource.start(0);
+      log('褐噪音已啟動');
+    } catch(err) {
+      log('褐噪音啟動失敗');
+    }
   }
 
-  // ---------- 相位反轉：單機本地版 ----------
   function setupPhaseInvert() {
-    invertProcessor = audioCtx.createScriptProcessor(4096, 1, 1);
-    invertProcessor.onaudioprocess = (e) => {
+    const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+    processor.onaudioprocess = (e) => {
       const input = e.inputBuffer.getChannelData(0);
       const output = e.outputBuffer.getChannelData(0);
-      for (let i = 0; i < input.length; i++) {
-        output[i] = -input[i];
-      }
+      for (let i = 0; i < input.length; i++) output[i] = -input[i];
     };
     invertGain = audioCtx.createGain();
     invertGain.gain.value = 0;
-
-    micSource.connect(invertProcessor);
-    invertProcessor.connect(invertGain);
+    micSource.connect(processor);
+    processor.connect(invertGain);
     invertGain.connect(audioCtx.destination);
   }
 
-  // ---------- 相位反轉：偵測端音訊串流（捕捉並傳送，本機靜音不外放） ----------
-  function setupAudioStreamer() {
-    streamProcessor = audioCtx.createScriptProcessor(streamChunkSize, 1, 1);
-    streamProcessor.onaudioprocess = (e) => {
-      if (activeMode !== 'phaseInvert') return;
-      if (state !== 'snoring') return;
-      if (!ws || ws.readyState !== WebSocket.OPEN) return;
-      const input = e.inputBuffer.getChannelData(0);
-      const chunk = new Float32Array(input.length);
-      chunk.set(input);
-      ws.send(chunk.buffer);
-    };
-    const silentSink = audioCtx.createGain();
-    silentSink.gain.value = 0; // 偵測端本身不需要聽到這段（也避免自我回授）
-    micSource.connect(streamProcessor);
-    streamProcessor.connect(silentSink);
-    silentSink.connect(audioCtx.destination);
-  }
-
-  // ---------- 相位反轉：播放端接收與排程播放 ----------
-  function setupStreamPlayback() {
-    streamOutGain = audioCtx.createGain();
-    streamOutGain.gain.value = 1;
-    streamOutGain.connect(audioCtx.destination);
-  }
-
-  function handleIncomingAudioChunk(arrayBuffer) {
-    if (!audioCtx || !streamOutGain) return;
+  function handleIncomingAudio(arrayBuffer) {
+    if (!audioCtx) return;
     const floatData = new Float32Array(arrayBuffer);
     const buffer = audioCtx.createBuffer(1, floatData.length, audioCtx.sampleRate);
     const channel = buffer.getChannelData(0);
-    for (let i = 0; i < floatData.length; i++) {
-      channel[i] = -floatData[i] * phaseInvertOutputVolume;
-    }
-
+    for (let i = 0; i < floatData.length; i++) channel[i] = -floatData[i] * 0.5;
     const source = audioCtx.createBufferSource();
     source.buffer = buffer;
-    source.connect(streamOutGain);
-
-    const now = audioCtx.currentTime;
-    const startAt = Math.max(now, playerNextPlayTime);
-    source.start(startAt);
-    playerNextPlayTime = startAt + buffer.duration;
-
+    source.connect(audioCtx.destination);
+    source.start();
     updateInterveningUI(true);
-    clearTimeout(streamIdleTimer);
-    streamIdleTimer = setTimeout(() => updateInterveningUI(false), 500);
   }
 
-  function updateInterveningUI(isOn) {
-    maskDot.className = 'dot' + (isOn ? ' on' : '');
-    maskText.textContent = isOn ? '介入中' : '未介入';
-  }
-
-  function applyActiveMode() {
-    if (!audioCtx) return;
+  function applyMode() {
+    if (!audioCtx || !maskGain) return;
     const now = audioCtx.currentTime;
     if (activeMode === 'proportional') {
-      const lower = ambientBaseline;
-      const upper = ambientBaseline + thresholdOffsetDb + proportionalRangeDb;
+      const lower = ambientBaseline, upper = ambientBaseline + thresholdOffsetDb + proportionalRangeDb;
       const t = Math.max(0, Math.min(1, (smoothedDb - lower) / Math.max(1, (upper - lower))));
-      const targetVol = t * maskingMaxVolume;
-      maskGain.gain.linearRampToValueAtTime(targetVol, now + 0.15);
-      invertGain.gain.linearRampToValueAtTime(0, now + 0.15);
-      updateInterveningUI(targetVol > 0.02);
+      const vol = t * maskingMaxVolume;
+      maskGain.gain.setTargetAtTime(vol, now, 0.1);
+      if (invertGain) invertGain.gain.setTargetAtTime(0, now, 0.1);
+      updateInterveningUI(vol > 0.02);
     } else {
-      maskGain.gain.linearRampToValueAtTime(0, now + 0.15);
-      const armed = state === 'snoring' ? phaseInvertOutputVolume : 0;
-      invertGain.gain.linearRampToValueAtTime(armed, now + 0.15);
-      updateInterveningUI(armed > 0.02);
+      maskGain.gain.setTargetAtTime(0, now, 0.1);
+      if (invertGain && state === 'snoring') {
+        invertGain.gain.setTargetAtTime(0.3, now, 0.1);
+        updateInterveningUI(true);
+      } else if (invertGain) {
+        invertGain.gain.setTargetAtTime(0, now, 0.1);
+      }
     }
   }
 
-  function applyReceivedTelemetry(msg) {
+  function applyRemoteTelemetry(msg) {
     dbText.textContent = msg.db.toFixed(1) + ' dB（對方）';
-    baselineText.textContent = '對方環境基準：' + msg.ambientBaseline.toFixed(1) + ' dB';
+    baselineText.textContent = '對方基準：' + msg.ambientBaseline.toFixed(1) + ' dB';
     updateMeter(msg.db, msg.ambientBaseline);
 
-    if (msg.state !== lastReceivedState) {
-      const labelMap = {
-        idle: ['對方安靜', 'state-idle'],
-        snoring: ['對方打呼中', 'state-snoring'],
-        calibrating: ['對方校準中...', 'state-calibrating']
-      };
-      const pair = labelMap[msg.state] || [msg.state, 'state-idle'];
-      setStateUI(pair[0], pair[1]);
-      if (msg.state === 'snoring') log('對方開始打呼', 'snore');
-      if (msg.state === 'idle' && lastReceivedState === 'snoring') log('對方鼾聲停止');
-      lastReceivedState = msg.state;
-    }
-
-    if (msg.mode === 'proportional' && maskGain && audioCtx) {
-      const targetVol = msg.intensity * maskingMaxVolume;
-      maskGain.gain.linearRampToValueAtTime(targetVol, audioCtx.currentTime + 0.3);
-      updateInterveningUI(targetVol > 0.02);
-    } else if (msg.mode === 'phaseInvert' && maskGain && audioCtx) {
-      // 白噪音歸零，介入指示燈交給音訊串流區塊負責（避免兩邊互相打架）
-      maskGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
-    }
-  }
-
-  function sendDetectorTelemetry(db) {
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    const lower = ambientBaseline;
-    const upper = ambientBaseline + thresholdOffsetDb + proportionalRangeDb;
-    const t = Math.max(0, Math.min(1, (smoothedDb - lower) / Math.max(1, (upper - lower))));
-    ws.send(JSON.stringify({
-      type: 'telemetry',
-      db: Number(db.toFixed(1)),
-      ambientBaseline: Number(ambientBaseline.toFixed(1)),
-      state: state,
-      intensity: t,
-      mode: activeMode
-    }));
-  }
-
-  // ---------- 核心偵測迴圈 ----------
-  function computeDb() {
-    analyser.getFloatTimeDomainData(dataBuffer);
-    let sumSquares = 0;
-    for (let i = 0; i < dataBuffer.length; i++) {
-      sumSquares += dataBuffer[i] * dataBuffer[i];
-    }
-    const rms = Math.sqrt(sumSquares / dataBuffer.length);
-    return 20 * Math.log10(Math.max(rms, 0.0000001));
+    if (!maskGain || !audioCtx) return;
+    const vol = (msg.intensity || 0) * maskingMaxVolume;
+    maskGain.gain.setTargetAtTime(vol, audioCtx.currentTime, 0.1);
+    updateInterveningUI(vol > 0.02);
   }
 
   function tick() {
     const db = computeDb();
-    smoothedDb = smoothedDb + (db - smoothedDb) * smoothingFactor;
+    smoothedDb += (db - smoothedDb) * smoothingFactor;
     dbText.textContent = db.toFixed(1) + ' dB';
     updateMeter(db, ambientBaseline);
 
-    if (state === 'calibrating') {
-      calibrate(db);
-    } else if (state === 'idle' || state === 'snoring') {
+    if (state === 'calibrating') calibrate(db);
+    else {
       evaluatePulse(db);
       evaluateClear();
-      if (connectionMode === 'detector') sendDetectorTelemetry(db);
+      if (connectionMode === 'detector') sendTelemetry(db);
     }
 
-    if (connectionMode === 'standalone') {
-      applyActiveMode();
-    }
+    if (connectionMode === 'standalone') applyMode();
+  }
+
+  function computeDb() {
+    analyser.getFloatTimeDomainData(dataBuffer);
+    let sum = 0;
+    for (let i = 0; i < dataBuffer.length; i++) sum += dataBuffer[i] * dataBuffer[i];
+    return 20 * Math.log10(Math.sqrt(sum / dataBuffer.length));
   }
 
   function updateMeter(db, baseline) {
-    const clamped = Math.max(-60, Math.min(0, db));
-    const pct = ((clamped + 60) / 60) * 100;
+    const pct = ((Math.max(-60, Math.min(0, db)) + 60) / 60) * 100;
     meterFill.style.width = pct + '%';
     meterFill.classList.toggle('hot', db > baseline + thresholdOffsetDb);
-
     const basePct = ((Math.max(-60, Math.min(0, baseline)) + 60) / 60) * 100;
     meterBaseline.style.left = basePct + '%';
   }
 
   function calibrate(db) {
     calibrationSamples.push(db);
-    const elapsed = (Date.now() - calibrationStart) / 1000;
-    if (elapsed >= calibrationDuration) {
+    if ((Date.now() - calibrationStart) / 1000 >= calibrationDuration) {
       const sorted = [...calibrationSamples].sort((a, b) => a - b);
-      ambientBaseline = sorted.length ? sorted[Math.floor(sorted.length / 2)] : -50;
+      ambientBaseline = sorted[Math.floor(sorted.length / 2)] || -50;
       smoothedDb = ambientBaseline;
       baselineText.textContent = '環境基準：' + ambientBaseline.toFixed(1) + ' dB';
       state = 'idle';
       setStateUI('安靜', 'state-idle');
-      log('校準完成，環境基準 ' + ambientBaseline.toFixed(1) + ' dB');
+      log('校準完成：' + ambientBaseline.toFixed(1) + ' dB');
     }
   }
 
   function evaluatePulse(db) {
     const threshold = ambientBaseline + thresholdOffsetDb;
     const now = Date.now();
-
     if (db >= threshold) {
       if (pulseStart === null) {
         pulseStart = now;
@@ -833,7 +528,6 @@
     confirmedPulses.push(now);
     const cutoff = pulseIntervalMax * 1000 * (pulsesNeededToConfirmSnoring + 1);
     confirmedPulses = confirmedPulses.filter(t => now - t < cutoff);
-
     if (confirmedPulses.length < pulsesNeededToConfirmSnoring) return;
 
     const recent = confirmedPulses.slice(-pulsesNeededToConfirmSnoring);
@@ -851,19 +545,43 @@
       if (state !== 'snoring') {
         state = 'snoring';
         setStateUI('偵測到鼾聲', 'state-snoring');
-        log('連續規律脈衝達標，判定打呼開始', 'snore');
+        log('打呼開始', 'snore');
       }
     }
   }
 
   function evaluateClear() {
-    if (state !== 'snoring' || lastSnoreAt === null) return;
-    if ((Date.now() - lastSnoreAt) / 1000 >= snoringClearDelay) {
+    if (state === 'snoring' && lastSnoreAt && (Date.now() - lastSnoreAt) / 1000 >= snoringClearDelay) {
       state = 'idle';
       setStateUI('安靜', 'state-idle');
-      log('已安靜超過設定時間，解除打呼狀態');
+      log('打呼停止');
     }
   }
+
+  function sendTelemetry(db) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    const lower = ambientBaseline, upper = ambientBaseline + thresholdOffsetDb + proportionalRangeDb;
+    const intensity = Math.max(0, Math.min(1, (smoothedDb - lower) / Math.max(1, (upper - lower))));
+    ws.send(JSON.stringify({
+      type: 'telemetry',
+      db: Number(db.toFixed(1)),
+      ambientBaseline: Number(ambientBaseline.toFixed(1)),
+      state: state,
+      intensity: intensity
+    }));
+  }
+
+  startBtn.addEventListener('click', () => { if (state === 'stopped') start(); else stop(); });
+  recalBtn.addEventListener('click', () => {
+    if (connectionMode === 'player') return;
+    state = 'calibrating';
+    calibrationStart = Date.now();
+    calibrationSamples = [];
+    confirmedPulses = [];
+    pulseStart = null;
+    setStateUI('校準中...', 'state-calibrating');
+    log('重新校準');
+  });
 
   applyVisibilityForMode();
 })();
