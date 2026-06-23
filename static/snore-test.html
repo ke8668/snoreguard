@@ -266,7 +266,7 @@
 </div>
 
 <div class="panel" id="modePanel">
-  <h2>介入模式（僅單機測試可選，雙機模式只支援等比例白噪音）</h2>
+  <h2>介入模式（互斥，可即時切換比較）</h2>
 
   <div class="mode-card" id="cardPhaseInvert">
     <div class="mode-head">
@@ -276,8 +276,8 @@
         <span class="track"></span>
       </label>
     </div>
-    <div class="mode-caption">偵測到規律打呼後，即時擷取麥克風訊號並反相播放，嘗試抵消。</div>
-    <div class="mode-caption warn-text">⚠️ 預期效果有限：單裝置錄放本身就有處理延遲，加上房間距離造成的相位問題，大機率聽不到抵消效果。保留讓你親自驗證。</div>
+    <div class="mode-caption">偵測到規律打呼後，擷取麥克風訊號並反相播放，嘗試抵消。</div>
+    <div class="mode-caption warn-text">⚠️ 單機模式：本地錄放本身就有處理延遲。雙機模式：偵測端會把錄到的聲音即時串流給播放端反相播放，但多了一段網路傳輸延遲，預期效果只會比單機測試更差。保留讓你親自驗證兩種情況。</div>
   </div>
 
   <div class="mode-card active" id="cardProportional">
@@ -288,7 +288,7 @@
         <span class="track"></span>
       </label>
     </div>
-    <div class="mode-caption">不等「確認打呼」狀態，分貝越高於環境基準，白噪音音量等比例即時提高。雙機模式下，這套邏輯由偵測端計算強度值後傳給播放端執行。</div>
+    <div class="mode-caption">不等「確認打呼」狀態，分貝越高於環境基準，白噪音音量等比例即時提高。雙機模式下由偵測端計算強度值後傳給播放端執行。</div>
   </div>
 </div>
 
@@ -307,12 +307,16 @@
     <input type="range" id="clearDelaySlider" min="2" max="15" step="1" value="6">
   </div>
   <div class="slider-row" id="maxVolRow">
-    <div class="slider-label"><span>白噪音音量上限（本機輸出用）</span><span class="value" id="maxVolVal">60%</span></div>
+    <div class="slider-label"><span>白噪音音量上限（模式2用）</span><span class="value" id="maxVolVal">60%</span></div>
     <input type="range" id="maxVolSlider" min="0" max="100" step="5" value="60">
   </div>
   <div class="slider-row" id="rangeRow">
-    <div class="slider-label"><span>等比例反應範圍寬度（dB）</span><span class="value" id="rangeVal">15</span></div>
+    <div class="slider-label"><span>等比例反應範圍寬度（dB，模式2用）</span><span class="value" id="rangeVal">15</span></div>
     <input type="range" id="rangeSlider" min="5" max="30" step="1" value="15">
+  </div>
+  <div class="slider-row" id="streamVolRow">
+    <div class="slider-label"><span>相位反轉輸出音量上限（模式1用，安全上限）</span><span class="value" id="streamVolVal">50%</span></div>
+    <input type="range" id="streamVolSlider" min="0" max="100" step="5" value="50">
   </div>
   <div class="hint">調整滑桿可即時生效，不需要重新開始</div>
 </div>
@@ -332,14 +336,16 @@
   let snoringClearDelay = 6;
   let maskingMaxVolume = 0.6;
   let proportionalRangeDb = 15;
+  let phaseInvertOutputVolume = 0.5;
 
   const minPulseDuration = 0.25;
   const pulseIntervalMin = 1.5;
   const pulseIntervalMax = 8.0;
   const calibrationDuration = 5;
   const smoothingFactor = 0.15;
+  const streamChunkSize = 2048; // 約 46ms @ 44.1kHz，決定串流延遲與封包頻率
 
-  let activeMode = 'proportional'; // 'proportional' | 'phaseInvert'（僅單機模式使用）
+  let activeMode = 'proportional'; // 'proportional' | 'phaseInvert'
   let connectionMode = 'standalone'; // 'standalone' | 'detector' | 'player'
 
   // ---------- DOM ----------
@@ -379,6 +385,7 @@
   bindSlider('clearDelaySlider', 'clearDelayVal', v => snoringClearDelay = v);
   bindSlider('maxVolSlider', 'maxVolVal', v => maskingMaxVolume = v / 100, v => v + '%');
   bindSlider('rangeSlider', 'rangeVal', v => proportionalRangeDb = v);
+  bindSlider('streamVolSlider', 'streamVolVal', v => phaseInvertOutputVolume = v / 100, v => v + '%');
 
   function setMode(mode) {
     activeMode = mode;
@@ -398,13 +405,14 @@
     const isPlayer = connectionMode === 'player';
 
     roomPanel.style.display = isStandalone ? 'none' : 'block';
-    modePanel.style.display = isStandalone ? 'block' : 'none';
+    modePanel.style.display = isPlayer ? 'none' : 'block';
 
     document.getElementById('thresholdRow').style.display = isPlayer ? 'none' : 'block';
     document.getElementById('pulseCountRow').style.display = isPlayer ? 'none' : 'block';
     document.getElementById('clearDelayRow').style.display = isPlayer ? 'none' : 'block';
     document.getElementById('rangeRow').style.display = isPlayer ? 'none' : 'block';
     document.getElementById('maxVolRow').style.display = isDetector ? 'none' : 'block';
+    document.getElementById('streamVolRow').style.display = isDetector ? 'none' : 'block';
 
     recalBtn.style.display = isPlayer ? 'none' : 'block';
     startBtn.textContent = isPlayer ? '啟用播放（不需要麥克風）' : '開始偵測（需要麥克風權限）';
@@ -433,6 +441,7 @@
     const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = wsProtocol + '//' + location.host + '/ws/' + encodeURIComponent(code);
     ws = new WebSocket(wsUrl);
+    ws.binaryType = 'arraybuffer';
 
     ws.onopen = () => {
       roomConnected = true;
@@ -453,6 +462,10 @@
     };
     ws.onerror = () => log('連線發生錯誤，請確認房間代碼與網路狀態');
     ws.onmessage = (e) => {
+      if (e.data instanceof ArrayBuffer) {
+        if (connectionMode === 'player') handleIncomingAudioChunk(e.data);
+        return;
+      }
       let msg;
       try { msg = JSON.parse(e.data); } catch (err) { return; }
       handleSocketMessage(msg);
@@ -477,6 +490,9 @@
   let audioCtx, analyser, micSource, dataBuffer;
   let maskGain, maskSource;
   let invertProcessor, invertGain;
+  let streamProcessor, streamOutGain;
+  let playerNextPlayTime = 0;
+  let streamIdleTimer = null;
   let pollTimer;
 
   let calibrationStart = null;
@@ -508,6 +524,8 @@
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') await audioCtx.resume();
       setupMaskingNoise();
+      setupStreamPlayback();
+      playerNextPlayTime = 0;
       state = 'idle';
       setStateUI('等待偵測端資料...', 'state-idle');
       startBtn.textContent = '停止播放';
@@ -530,6 +548,8 @@
       if (connectionMode === 'standalone') {
         setupMaskingNoise();
         setupPhaseInvert();
+      } else if (connectionMode === 'detector') {
+        setupAudioStreamer();
       }
 
       calibrationStart = Date.now();
@@ -549,8 +569,10 @@
 
   function stop() {
     clearInterval(pollTimer);
+    clearTimeout(streamIdleTimer);
     if (maskSource) { try { maskSource.stop(); } catch(e){} }
     if (invertProcessor) { try { invertProcessor.disconnect(); } catch(e){} }
+    if (streamProcessor) { try { streamProcessor.disconnect(); } catch(e){} }
     if (audioCtx) { try { audioCtx.close(); } catch(e){} }
     state = 'stopped';
     setStateUI(connectionMode === 'player' ? '已停止播放' : '已停止', 'state-idle');
@@ -575,7 +597,7 @@
   });
   recalBtn.addEventListener('click', recalibrate);
 
-  // ---------- 遮蔽音 / 相位反轉節點（單機 + 播放端共用遮蔽音；相位反轉僅單機） ----------
+  // ---------- 遮蔽音（單機 + 播放端共用） ----------
   function setupMaskingNoise() {
     const bufferSeconds = 4;
     const sampleRate = audioCtx.sampleRate;
@@ -603,6 +625,7 @@
     maskSource.start();
   }
 
+  // ---------- 相位反轉：單機本地版 ----------
   function setupPhaseInvert() {
     invertProcessor = audioCtx.createScriptProcessor(4096, 1, 1);
     invertProcessor.onaudioprocess = (e) => {
@@ -618,6 +641,55 @@
     micSource.connect(invertProcessor);
     invertProcessor.connect(invertGain);
     invertGain.connect(audioCtx.destination);
+  }
+
+  // ---------- 相位反轉：偵測端音訊串流（捕捉並傳送，本機靜音不外放） ----------
+  function setupAudioStreamer() {
+    streamProcessor = audioCtx.createScriptProcessor(streamChunkSize, 1, 1);
+    streamProcessor.onaudioprocess = (e) => {
+      if (activeMode !== 'phaseInvert') return;
+      if (state !== 'snoring') return;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      const input = e.inputBuffer.getChannelData(0);
+      const chunk = new Float32Array(input.length);
+      chunk.set(input);
+      ws.send(chunk.buffer);
+    };
+    const silentSink = audioCtx.createGain();
+    silentSink.gain.value = 0; // 偵測端本身不需要聽到這段（也避免自我回授）
+    micSource.connect(streamProcessor);
+    streamProcessor.connect(silentSink);
+    silentSink.connect(audioCtx.destination);
+  }
+
+  // ---------- 相位反轉：播放端接收與排程播放 ----------
+  function setupStreamPlayback() {
+    streamOutGain = audioCtx.createGain();
+    streamOutGain.gain.value = 1;
+    streamOutGain.connect(audioCtx.destination);
+  }
+
+  function handleIncomingAudioChunk(arrayBuffer) {
+    if (!audioCtx || !streamOutGain) return;
+    const floatData = new Float32Array(arrayBuffer);
+    const buffer = audioCtx.createBuffer(1, floatData.length, audioCtx.sampleRate);
+    const channel = buffer.getChannelData(0);
+    for (let i = 0; i < floatData.length; i++) {
+      channel[i] = -floatData[i] * phaseInvertOutputVolume;
+    }
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(streamOutGain);
+
+    const now = audioCtx.currentTime;
+    const startAt = Math.max(now, playerNextPlayTime);
+    source.start(startAt);
+    playerNextPlayTime = startAt + buffer.duration;
+
+    updateInterveningUI(true);
+    clearTimeout(streamIdleTimer);
+    streamIdleTimer = setTimeout(() => updateInterveningUI(false), 500);
   }
 
   function updateInterveningUI(isOn) {
@@ -638,9 +710,9 @@
       updateInterveningUI(targetVol > 0.02);
     } else {
       maskGain.gain.linearRampToValueAtTime(0, now + 0.15);
-      const armed = state === 'snoring' ? 1 : 0;
+      const armed = state === 'snoring' ? phaseInvertOutputVolume : 0;
       invertGain.gain.linearRampToValueAtTime(armed, now + 0.15);
-      updateInterveningUI(armed === 1);
+      updateInterveningUI(armed > 0.02);
     }
   }
 
@@ -662,10 +734,13 @@
       lastReceivedState = msg.state;
     }
 
-    if (maskGain && audioCtx) {
+    if (msg.mode === 'proportional' && maskGain && audioCtx) {
       const targetVol = msg.intensity * maskingMaxVolume;
       maskGain.gain.linearRampToValueAtTime(targetVol, audioCtx.currentTime + 0.3);
       updateInterveningUI(targetVol > 0.02);
+    } else if (msg.mode === 'phaseInvert' && maskGain && audioCtx) {
+      // 白噪音歸零，介入指示燈交給音訊串流區塊負責（避免兩邊互相打架）
+      maskGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
     }
   }
 
@@ -679,7 +754,8 @@
       db: Number(db.toFixed(1)),
       ambientBaseline: Number(ambientBaseline.toFixed(1)),
       state: state,
-      intensity: t
+      intensity: t,
+      mode: activeMode
     }));
   }
 
