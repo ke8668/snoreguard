@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnoreGuard 網頁版測試</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #181b22;
+    --panel-border: #2a2e38;
+    --text: #e8eaed;
+    --text-dim: #8a8f9c;
+    --accent: #4da3ff;
+    --warn: #ff9f43;
+    --good: #4cd964;
+    --bad: #ff5e5e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    padding: 20px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .panel h2 {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin: 0 0 10px 0;
+    font-weight: 600;
+  }
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .state-text {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .state-idle { color: var(--text); }
+  .state-calibrating { color: var(--accent); }
+  .state-snoring { color: var(--warn); }
+  .mono {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  .meter-track {
+    height: 28px;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--panel-border);
+  }
+  .meter-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent));
+    width: 0%;
+    transition: width 0.08s linear, background 0.2s;
+  }
+  .meter-fill.hot { background: linear-gradient(90deg, var(--warn), var(--bad)); }
+  .meter-baseline {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--text-dim);
+    left: 0%;
+  }
+  .dot-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--panel-border);
+    flex-shrink: 0;
+  }
+  .dot.on { background: var(--good); box-shadow: 0 0 8px var(--good); }
+  button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .btn-primary { background: var(--accent); color: #07101f; }
+  .btn-secondary { background: var(--panel-border); color: var(--text); }
+  .btn-primary:disabled, .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .seg-control { display: flex; gap: 6px; margin-bottom: 4px; }
+  .seg-btn {
+    flex: 1;
+    padding: 10px 4px;
+    font-size: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg);
+    color: var(--text-dim);
+    cursor: pointer;
+    margin-bottom: 0;
+  }
+  .seg-btn.active { background: var(--accent); color: #07101f; border-color: var(--accent); font-weight: 600; }
+  .seg-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .mode-card {
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .mode-card.active { border-color: var(--accent); background: rgba(77,163,255,0.08); }
+  .mode-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .mode-title { font-size: 14px; font-weight: 600; }
+  .mode-caption { font-size: 12px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
+  .mode-caption.warn-text { color: var(--warn); }
+
+  .switch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .track {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--panel-border);
+    border-radius: 26px;
+    transition: background 0.2s;
+  }
+  .switch .track:before {
+    content: "";
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background: var(--text);
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .switch input:checked + .track { background: var(--accent); }
+  .switch input:checked + .track:before { transform: translateX(18px); background: #07101f; }
+
+  .slider-row {
+    margin-bottom: 14px;
+  }
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .slider-label span.value { color: var(--text); font-weight: 600; }
+  input[type="range"] {
+    width: 100%;
+  }
+  .log-panel {
+    max-height: 160px;
+    overflow-y: auto;
+    font-size: 12px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .log-panel div.snore { color: var(--warn); }
+  .log-panel div.mode { color: var(--accent); }
+  .hint {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-align: center;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🛌 SnoreGuard 網頁版測試</h1>
+
+<div class="panel">
+  <h2>連線模式（執行中無法切換）</h2>
+  <div class="seg-control" id="connModeControl">
+    <button class="seg-btn active" data-mode="standalone">單機測試</button>
+    <button class="seg-btn" data-mode="detector">雙機－偵測端</button>
+    <button class="seg-btn" data-mode="player">雙機－播放端</button>
+  </div>
+</div>
+
+<div class="panel" id="roomPanel" style="display:none;">
+  <h2>房間連線</h2>
+  <input type="text" id="roomCodeInput" placeholder="雙方輸入同一個房間代碼，例如 abc123">
+  <button class="btn-secondary" id="connectBtn">連線到房間</button>
+  <div class="dot-row">
+    <div class="dot" id="connDot"></div>
+    <span id="connText">未連線</span>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="status-row">
+    <span class="state-text" id="stateText">尚未啟動</span>
+    <span class="mono" id="dbText">-- dB</span>
+  </div>
+  <div class="meter-track">
+    <div class="meter-fill" id="meterFill"></div>
+    <div class="meter-baseline" id="meterBaseline"></div>
+  </div>
+  <div class="status-row" style="margin-top:8px;">
+    <span class="mono" id="baselineText">環境基準：-- dB</span>
+  </div>
+  <div class="dot-row">
+    <div class="dot" id="maskDot"></div>
+    <span id="maskText">未介入</span>
+  </div>
+</div>
+
+<div class="panel">
+  <button class="btn-primary" id="startBtn">開始偵測（需要麥克風權限）</button>
+  <button class="btn-secondary" id="recalBtn" disabled>重新校準環境音</button>
+</div>
+
+<div class="panel" id="modePanel">
+  <h2>介入模式（僅單機測試可選，雙機模式只支援等比例白噪音）</h2>
+
+  <div class="mode-card" id="cardPhaseInvert">
+    <div class="mode-head">
+      <span class="mode-title">1️⃣ 原始 ANC 模式（相位反轉嘗試）</span>
+      <label class="switch">
+        <input type="checkbox" id="switchPhaseInvert">
+        <span class="track"></span>
+      </label>
+    </div>
+    <div class="mode-caption">偵測到規律打呼後，即時擷取麥克風訊號並反相播放，嘗試抵消。</div>
+    <div class="mode-caption warn-text">⚠️ 預期效果有限：單裝置錄放本身就有處理延遲，加上房間距離造成的相位問題，大機率聽不到抵消效果。保留讓你親自驗證。</div>
+  </div>
+
+  <div class="mode-card active" id="cardProportional">
+    <div class="mode-head">
+      <span class="mode-title">2️⃣ 等比例白噪音模式</span>
+      <label class="switch">
+        <input type="checkbox" id="switchProportional" checked>
+        <span class="track"></span>
+      </label>
+    </div>
+    <div class="mode-caption">不等「確認打呼」狀態，分貝越高於環境基準，白噪音音量等比例即時提高。雙機模式下，這套邏輯由偵測端計算強度值後傳給播放端執行。</div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>共用參數</h2>
+  <div class="slider-row" id="thresholdRow">
+    <div class="slider-label"><span>觸發閾值（高於基準多少 dB 起算）</span><span class="value" id="thresholdVal">12</span></div>
+    <input type="range" id="thresholdSlider" min="5" max="25" step="1" value="12">
+  </div>
+  <div class="slider-row" id="pulseCountRow">
+    <div class="slider-label"><span>需連續幾次規律脈衝才判定打呼（影響模式1開關時機）</span><span class="value" id="pulseCountVal">3</span></div>
+    <input type="range" id="pulseCountSlider" min="2" max="6" step="1" value="3">
+  </div>
+  <div class="slider-row" id="clearDelayRow">
+    <div class="slider-label"><span>安靜多久後解除打呼狀態（秒）</span><span class="value" id="clearDelayVal">6</span></div>
+    <input type="range" id="clearDelaySlider" min="2" max="15" step="1" value="6">
+  </div>
+  <div class="slider-row" id="maxVolRow">
+    <div class="slider-label"><span>白噪音音量上限（本機輸出用）</span><span class="value" id="maxVolVal">60%</span></div>
+    <input type="range" id="maxVolSlider" min="0" max="100" step="5" value="60">
+  </div>
+  <div class="slider-row" id="rangeRow">
+    <div class="slider-label"><span>等比例反應範圍寬度（dB）</span><span class="value" id="rangeVal">15</span></div>
+    <input type="range" id="rangeSlider" min="5" max="30" step="1" value="15">
+  </div>
+  <div class="hint">調整滑桿可即時生效，不需要重新開始</div>
+</div>
+
+<div class="panel">
+  <div class="status-row" style="margin-bottom:8px;">
+    <strong style="font-size:13px;">事件記錄</strong>
+  </div>
+  <div class="log-panel" id="logPanel"></div>
+</div>
+
+<script>
+(() => {
+  // ---------- 可調參數 ----------
+  let thresholdOffsetDb = 12;
+  let pulsesNeededToConfirmSnoring = 3;
+  let snoringClearDelay = 6;
+  let maskingMaxVolume = 0.6;
+  let proportionalRangeDb = 15;
+
+  const minPulseDuration = 0.25;
+  const pulseIntervalMin = 1.5;
+  const pulseIntervalMax = 8.0;
+  const calibrationDuration = 5;
+  const smoothingFactor = 0.15;
+
+  let activeMode = 'proportional'; // 'proportional' | 'phaseInvert'（僅單機模式使用）
+  let connectionMode = 'standalone'; // 'standalone' | 'detector' | 'player'
+
+  // ---------- DOM ----------
+  const stateText = document.getElementById('stateText');
+  const dbText = document.getElementById('dbText');
+  const baselineText = document.getElementById('baselineText');
+  const meterFill = document.getElementById('meterFill');
+  const meterBaseline = document.getElementById('meterBaseline');
+  const maskDot = document.getElementById('maskDot');
+  const maskText = document.getElementById('maskText');
+  const startBtn = document.getElementById('startBtn');
+  const recalBtn = document.getElementById('recalBtn');
+  const logPanel = document.getElementById('logPanel');
+  const cardPhaseInvert = document.getElementById('cardPhaseInvert');
+  const cardProportional = document.getElementById('cardProportional');
+  const switchPhaseInvert = document.getElementById('switchPhaseInvert');
+  const switchProportional = document.getElementById('switchProportional');
+  const roomPanel = document.getElementById('roomPanel');
+  const modePanel = document.getElementById('modePanel');
+  const roomCodeInput = document.getElementById('roomCodeInput');
+  const connectBtn = document.getElementById('connectBtn');
+  const connDot = document.getElementById('connDot');
+  const connText = document.getElementById('connText');
+  const segButtons = document.querySelectorAll('.seg-btn');
+
+  function bindSlider(sliderId, valueId, onChange, formatter) {
+    const slider = document.getElementById(sliderId);
+    const valueEl = document.getElementById(valueId);
+    slider.addEventListener('input', () => {
+      const v = Number(slider.value);
+      valueEl.textContent = formatter ? formatter(v) : v;
+      onChange(v);
+    });
+  }
+  bindSlider('thresholdSlider', 'thresholdVal', v => thresholdOffsetDb = v);
+  bindSlider('pulseCountSlider', 'pulseCountVal', v => pulsesNeededToConfirmSnoring = v);
+  bindSlider('clearDelaySlider', 'clearDelayVal', v => snoringClearDelay = v);
+  bindSlider('maxVolSlider', 'maxVolVal', v => maskingMaxVolume = v / 100, v => v + '%');
+  bindSlider('rangeSlider', 'rangeVal', v => proportionalRangeDb = v);
+
+  function setMode(mode) {
+    activeMode = mode;
+    switchPhaseInvert.checked = mode === 'phaseInvert';
+    switchProportional.checked = mode === 'proportional';
+    cardPhaseInvert.classList.toggle('active', mode === 'phaseInvert');
+    cardProportional.classList.toggle('active', mode === 'proportional');
+    log('切換到模式：' + (mode === 'phaseInvert' ? '原始 ANC（相位反轉）' : '等比例白噪音'), 'mode');
+  }
+  switchPhaseInvert.addEventListener('change', () => { if (switchPhaseInvert.checked) setMode('phaseInvert'); else setMode('proportional'); });
+  switchProportional.addEventListener('change', () => { if (switchProportional.checked) setMode('proportional'); else setMode('phaseInvert'); });
+
+  // ---------- 連線模式切換 ----------
+  function applyVisibilityForMode() {
+    const isStandalone = connectionMode === 'standalone';
+    const isDetector = connectionMode === 'detector';
+    const isPlayer = connectionMode === 'player';
+
+    roomPanel.style.display = isStandalone ? 'none' : 'block';
+    modePanel.style.display = isStandalone ? 'block' : 'none';
+
+    document.getElementById('thresholdRow').style.display = isPlayer ? 'none' : 'block';
+    document.getElementById('pulseCountRow').style.display = isPlayer ? 'none' : 'block';
+    document.getElementById('clearDelayRow').style.display = isPlayer ? 'none' : 'block';
+    document.getElementById('rangeRow').style.display = isPlayer ? 'none' : 'block';
+    document.getElementById('maxVolRow').style.display = isDetector ? 'none' : 'block';
+
+    recalBtn.style.display = isPlayer ? 'none' : 'block';
+    startBtn.textContent = isPlayer ? '啟用播放（不需要麥克風）' : '開始偵測（需要麥克風權限）';
+    startBtn.disabled = !isStandalone && !roomConnected;
+  }
+
+  segButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (state !== 'stopped') return;
+      connectionMode = btn.dataset.mode;
+      segButtons.forEach(b => b.classList.toggle('active', b === btn));
+      applyVisibilityForMode();
+      log('連線模式切換為：' + (connectionMode === 'standalone' ? '單機測試' : connectionMode === 'detector' ? '雙機－偵測端' : '雙機－播放端'), 'mode');
+    });
+  });
+
+  // ---------- WebSocket ----------
+  let ws = null;
+  let roomConnected = false;
+  let lastReceivedState = null;
+
+  function toggleRoomConnection() {
+    if (ws) { ws.close(); return; }
+    const code = roomCodeInput.value.trim();
+    if (!code) { alert('請輸入房間代碼'); return; }
+    const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = wsProtocol + '//' + location.host + '/ws/' + encodeURIComponent(code);
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      roomConnected = true;
+      connDot.classList.add('on');
+      connText.textContent = '已連線，等待對方加入';
+      connectBtn.textContent = '取消連線';
+      startBtn.disabled = false;
+      log('已連線到房間：' + code, 'mode');
+    };
+    ws.onclose = () => {
+      roomConnected = false;
+      ws = null;
+      connDot.classList.remove('on');
+      connText.textContent = '未連線';
+      connectBtn.textContent = '連線到房間';
+      startBtn.disabled = connectionMode !== 'standalone';
+      log('連線已關閉');
+    };
+    ws.onerror = () => log('連線發生錯誤，請確認房間代碼與網路狀態');
+    ws.onmessage = (e) => {
+      let msg;
+      try { msg = JSON.parse(e.data); } catch (err) { return; }
+      handleSocketMessage(msg);
+    };
+  }
+  connectBtn.addEventListener('click', toggleRoomConnection);
+
+  function handleSocketMessage(msg) {
+    if (msg.type === 'peer_joined') {
+      connText.textContent = '已配對成功';
+      log('對方已加入房間', 'mode');
+    } else if (msg.type === 'peer_left') {
+      connText.textContent = '已連線，等待對方加入';
+      log('對方已離開房間');
+    } else if (msg.type === 'telemetry' && connectionMode === 'player') {
+      applyReceivedTelemetry(msg);
+    }
+  }
+
+  // ---------- 狀態 ----------
+  let state = 'stopped';
+  let audioCtx, analyser, micSource, dataBuffer;
+  let maskGain, maskSource;
+  let invertProcessor, invertGain;
+  let pollTimer;
+
+  let calibrationStart = null;
+  let calibrationSamples = [];
+  let ambientBaseline = -50;
+  let smoothedDb = -50;
+
+  let pulseStart = null;
+  let confirmedPulses = [];
+  let lastSnoreAt = null;
+
+  function log(msg, cls) {
+    const div = document.createElement('div');
+    const t = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+    div.textContent = '[' + t + '] ' + msg;
+    if (cls) div.className = cls;
+    logPanel.appendChild(div);
+    logPanel.scrollTop = logPanel.scrollHeight;
+  }
+
+  function setStateUI(label, cssClass) {
+    stateText.textContent = label;
+    stateText.className = 'state-text ' + cssClass;
+  }
+
+  // ---------- 啟動 / 停止 ----------
+  async function start() {
+    if (connectionMode === 'player') {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+      setupMaskingNoise();
+      state = 'idle';
+      setStateUI('等待偵測端資料...', 'state-idle');
+      startBtn.textContent = '停止播放';
+      log('播放端已啟用，等待資料');
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: {
+        echoCancellation: true, noiseSuppression: false, autoGainControl: false
+      }});
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
+      micSource = audioCtx.createMediaStreamSource(stream);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      dataBuffer = new Float32Array(analyser.fftSize);
+      micSource.connect(analyser);
+
+      if (connectionMode === 'standalone') {
+        setupMaskingNoise();
+        setupPhaseInvert();
+      }
+
+      calibrationStart = Date.now();
+      calibrationSamples = [];
+      state = 'calibrating';
+      setStateUI('校準環境音中...', 'state-calibrating');
+      log('開始校準環境音（' + calibrationDuration + ' 秒）');
+
+      pollTimer = setInterval(tick, 80);
+      startBtn.textContent = connectionMode === 'detector' ? '停止偵測（傳送中）' : '停止偵測';
+      recalBtn.disabled = false;
+    } catch (err) {
+      log('麥克風權限取得失敗：' + err.message);
+      alert('無法取得麥克風權限，請確認瀏覽器設定或改用 HTTPS 網址開啟此頁面。');
+    }
+  }
+
+  function stop() {
+    clearInterval(pollTimer);
+    if (maskSource) { try { maskSource.stop(); } catch(e){} }
+    if (invertProcessor) { try { invertProcessor.disconnect(); } catch(e){} }
+    if (audioCtx) { try { audioCtx.close(); } catch(e){} }
+    state = 'stopped';
+    setStateUI(connectionMode === 'player' ? '已停止播放' : '已停止', 'state-idle');
+    updateInterveningUI(false);
+    startBtn.textContent = connectionMode === 'player' ? '啟用播放（不需要麥克風）' : '開始偵測（需要麥克風權限）';
+    recalBtn.disabled = true;
+  }
+
+  function recalibrate() {
+    if (connectionMode === 'player') return;
+    state = 'calibrating';
+    calibrationStart = Date.now();
+    calibrationSamples = [];
+    confirmedPulses = [];
+    pulseStart = null;
+    setStateUI('校準環境音中...', 'state-calibrating');
+    log('手動重新校準');
+  }
+
+  startBtn.addEventListener('click', () => {
+    if (state === 'stopped') start(); else stop();
+  });
+  recalBtn.addEventListener('click', recalibrate);
+
+  // ---------- 遮蔽音 / 相位反轉節點（單機 + 播放端共用遮蔽音；相位反轉僅單機） ----------
+  function setupMaskingNoise() {
+    const bufferSeconds = 4;
+    const sampleRate = audioCtx.sampleRate;
+    const frameCount = sampleRate * bufferSeconds;
+    const buffer = audioCtx.createBuffer(1, frameCount, sampleRate);
+    const data = buffer.getChannelData(0);
+
+    let last = 0;
+    for (let i = 0; i < frameCount; i++) {
+      const white = Math.random() * 2 - 1;
+      last += white * 0.02;
+      last = Math.max(-1, Math.min(1, last));
+      data[i] = last * 0.8;
+    }
+
+    maskSource = audioCtx.createBufferSource();
+    maskSource.buffer = buffer;
+    maskSource.loop = true;
+
+    maskGain = audioCtx.createGain();
+    maskGain.gain.value = 0;
+
+    maskSource.connect(maskGain);
+    maskGain.connect(audioCtx.destination);
+    maskSource.start();
+  }
+
+  function setupPhaseInvert() {
+    invertProcessor = audioCtx.createScriptProcessor(4096, 1, 1);
+    invertProcessor.onaudioprocess = (e) => {
+      const input = e.inputBuffer.getChannelData(0);
+      const output = e.outputBuffer.getChannelData(0);
+      for (let i = 0; i < input.length; i++) {
+        output[i] = -input[i];
+      }
+    };
+    invertGain = audioCtx.createGain();
+    invertGain.gain.value = 0;
+
+    micSource.connect(invertProcessor);
+    invertProcessor.connect(invertGain);
+    invertGain.connect(audioCtx.destination);
+  }
+
+  function updateInterveningUI(isOn) {
+    maskDot.className = 'dot' + (isOn ? ' on' : '');
+    maskText.textContent = isOn ? '介入中' : '未介入';
+  }
+
+  function applyActiveMode() {
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    if (activeMode === 'proportional') {
+      const lower = ambientBaseline;
+      const upper = ambientBaseline + thresholdOffsetDb + proportionalRangeDb;
+      const t = Math.max(0, Math.min(1, (smoothedDb - lower) / Math.max(1, (upper - lower))));
+      const targetVol = t * maskingMaxVolume;
+      maskGain.gain.linearRampToValueAtTime(targetVol, now + 0.15);
+      invertGain.gain.linearRampToValueAtTime(0, now + 0.15);
+      updateInterveningUI(targetVol > 0.02);
+    } else {
+      maskGain.gain.linearRampToValueAtTime(0, now + 0.15);
+      const armed = state === 'snoring' ? 1 : 0;
+      invertGain.gain.linearRampToValueAtTime(armed, now + 0.15);
+      updateInterveningUI(armed === 1);
+    }
+  }
+
+  function applyReceivedTelemetry(msg) {
+    dbText.textContent = msg.db.toFixed(1) + ' dB（對方）';
+    baselineText.textContent = '對方環境基準：' + msg.ambientBaseline.toFixed(1) + ' dB';
+    updateMeter(msg.db, msg.ambientBaseline);
+
+    if (msg.state !== lastReceivedState) {
+      const labelMap = {
+        idle: ['對方安靜', 'state-idle'],
+        snoring: ['對方打呼中', 'state-snoring'],
+        calibrating: ['對方校準中...', 'state-calibrating']
+      };
+      const pair = labelMap[msg.state] || [msg.state, 'state-idle'];
+      setStateUI(pair[0], pair[1]);
+      if (msg.state === 'snoring') log('對方開始打呼', 'snore');
+      if (msg.state === 'idle' && lastReceivedState === 'snoring') log('對方鼾聲停止');
+      lastReceivedState = msg.state;
+    }
+
+    if (maskGain && audioCtx) {
+      const targetVol = msg.intensity * maskingMaxVolume;
+      maskGain.gain.linearRampToValueAtTime(targetVol, audioCtx.currentTime + 0.3);
+      updateInterveningUI(targetVol > 0.02);
+    }
+  }
+
+  function sendDetectorTelemetry(db) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    const lower = ambientBaseline;
+    const upper = ambientBaseline + thresholdOffsetDb + proportionalRangeDb;
+    const t = Math.max(0, Math.min(1, (smoothedDb - lower) / Math.max(1, (upper - lower))));
+    ws.send(JSON.stringify({
+      type: 'telemetry',
+      db: Number(db.toFixed(1)),
+      ambientBaseline: Number(ambientBaseline.toFixed(1)),
+      state: state,
+      intensity: t
+    }));
+  }
+
+  // ---------- 核心偵測迴圈 ----------
+  function computeDb() {
+    analyser.getFloatTimeDomainData(dataBuffer);
+    let sumSquares = 0;
+    for (let i = 0; i < dataBuffer.length; i++) {
+      sumSquares += dataBuffer[i] * dataBuffer[i];
+    }
+    const rms = Math.sqrt(sumSquares / dataBuffer.length);
+    return 20 * Math.log10(Math.max(rms, 0.0000001));
+  }
+
+  function tick() {
+    const db = computeDb();
+    smoothedDb = smoothedDb + (db - smoothedDb) * smoothingFactor;
+    dbText.textContent = db.toFixed(1) + ' dB';
+    updateMeter(db, ambientBaseline);
+
+    if (state === 'calibrating') {
+      calibrate(db);
+    } else if (state === 'idle' || state === 'snoring') {
+      evaluatePulse(db);
+      evaluateClear();
+      if (connectionMode === 'detector') sendDetectorTelemetry(db);
+    }
+
+    if (connectionMode === 'standalone') {
+      applyActiveMode();
+    }
+  }
+
+  function updateMeter(db, baseline) {
+    const clamped = Math.max(-60, Math.min(0, db));
+    const pct = ((clamped + 60) / 60) * 100;
+    meterFill.style.width = pct + '%';
+    meterFill.classList.toggle('hot', db > baseline + thresholdOffsetDb);
+
+    const basePct = ((Math.max(-60, Math.min(0, baseline)) + 60) / 60) * 100;
+    meterBaseline.style.left = basePct + '%';
+  }
+
+  function calibrate(db) {
+    calibrationSamples.push(db);
+    const elapsed = (Date.now() - calibrationStart) / 1000;
+    if (elapsed >= calibrationDuration) {
+      const sorted = [...calibrationSamples].sort((a, b) => a - b);
+      ambientBaseline = sorted.length ? sorted[Math.floor(sorted.length / 2)] : -50;
+      smoothedDb = ambientBaseline;
+      baselineText.textContent = '環境基準：' + ambientBaseline.toFixed(1) + ' dB';
+      state = 'idle';
+      setStateUI('安靜', 'state-idle');
+      log('校準完成，環境基準 ' + ambientBaseline.toFixed(1) + ' dB');
+    }
+  }
+
+  function evaluatePulse(db) {
+    const threshold = ambientBaseline + thresholdOffsetDb;
+    const now = Date.now();
+
+    if (db >= threshold) {
+      if (pulseStart === null) {
+        pulseStart = now;
+      } else if ((now - pulseStart) / 1000 >= minPulseDuration) {
+        registerConfirmedPulse(now);
+        pulseStart = null;
+      }
+    } else {
+      pulseStart = null;
+    }
+  }
+
+  function registerConfirmedPulse(now) {
+    confirmedPulses.push(now);
+    const cutoff = pulseIntervalMax * 1000 * (pulsesNeededToConfirmSnoring + 1);
+    confirmedPulses = confirmedPulses.filter(t => now - t < cutoff);
+
+    if (confirmedPulses.length < pulsesNeededToConfirmSnoring) return;
+
+    const recent = confirmedPulses.slice(-pulsesNeededToConfirmSnoring);
+    let isRegular = true;
+    for (let i = 1; i < recent.length; i++) {
+      const interval = (recent[i] - recent[i - 1]) / 1000;
+      if (interval < pulseIntervalMin || interval > pulseIntervalMax) {
+        isRegular = false;
+        break;
+      }
+    }
+
+    if (isRegular) {
+      lastSnoreAt = now;
+      if (state !== 'snoring') {
+        state = 'snoring';
+        setStateUI('偵測到鼾聲', 'state-snoring');
+        log('連續規律脈衝達標，判定打呼開始', 'snore');
+      }
+    }
+  }
+
+  function evaluateClear() {
+    if (state !== 'snoring' || lastSnoreAt === null) return;
+    if ((Date.now() - lastSnoreAt) / 1000 >= snoringClearDelay) {
+      state = 'idle';
+      setStateUI('安靜', 'state-idle');
+      log('已安靜超過設定時間，解除打呼狀態');
+    }
+  }
+
+  applyVisibilityForMode();
+})();
+</script>
+
+</body>
+</html>
