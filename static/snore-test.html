@@ -3,29 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SnoreGuard 網頁版測試</title>
+<title>SnoreGuard 網頁版測試（含除錯工具）</title>
 <style>
   :root {
-    --bg: #0f1115;
-    --panel: #181b22;
-    --panel-border: #2a2e38;
-    --text: #e8eaed;
-    --text-dim: #8a8f9c;
-    --accent: #4da3ff;
-    --warn: #ff9f43;
-    --good: #4cd964;
-    --bad: #ff5e5e;
+    --bg: #0f1115; --panel: #181b22; --panel-border: #2a2e38;
+    --text: #e8eaed; --text-dim: #8a8f9c; --accent: #4da3ff;
+    --warn: #ff9f43; --good: #4cd964; --bad: #ff5e5e;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
-    padding: 20px;
-    max-width: 480px;
-    margin: 0 auto;
-  }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif; padding: 20px; max-width: 480px; margin: 0 auto; }
   h1 { font-size: 18px; text-align: center; margin-bottom: 16px; }
   .panel { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
   .panel h2 { font-size: 13px; color: var(--text-dim); margin: 0 0 10px 0; font-weight: 600; }
@@ -44,7 +30,7 @@
   .dot.on { background: var(--good); box-shadow: 0 0 8px var(--good); }
   button { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
   .btn-primary { background: var(--accent); color: #07101f; }
-  .btn-secondary { background: var(--panel-border); color: var(--text); }
+  .btn-secondary { background: var(--panel-border); color: var(--text); font-size: 13px; padding: 12px; }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   .seg-control { display: flex; gap: 6px; margin-bottom: 4px; }
   .seg-btn { flex: 1; padding: 10px 4px; font-size: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: var(--bg); color: var(--text-dim); cursor: pointer; margin-bottom: 0; }
@@ -70,7 +56,10 @@
   .log-panel { max-height: 160px; overflow-y: auto; font-size: 12px; font-family: "SF Mono", Menlo, Consolas, monospace; color: var(--text-dim); line-height: 1.6; }
   .log-panel div.snore { color: var(--warn); }
   .log-panel div.mode { color: var(--accent); }
-  .hint { font-size: 12px; color: var(--text-dim); text-align: center; margin-top: 4px; }
+  .log-panel div.warn { color: var(--bad); }
+  .check-row { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 10px; }
+  .check-row input { width: 18px; height: 18px; }
+  .debug-readout { white-space: pre-line; margin-top: 8px; padding: 10px; background: var(--bg); border-radius: 8px; font-size: 11px; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -121,25 +110,17 @@
 
 <div class="panel" id="modePanel">
   <h2>介入模式</h2>
-
   <div class="mode-card" id="cardPhaseInvert">
     <div class="mode-head">
       <span class="mode-title">1️⃣ ANC（相位反轉）</span>
-      <label class="switch">
-        <input type="checkbox" id="switchPhaseInvert">
-        <span class="track"></span>
-      </label>
+      <label class="switch"><input type="checkbox" id="switchPhaseInvert"><span class="track"></span></label>
     </div>
-    <div class="mode-caption warn-text">⚠️ 預期效果有限：處理延遲導致相位對不齊。用來驗證物理限制。</div>
+    <div class="mode-caption warn-text">⚠️ 預期效果有限：處理延遲導致相位對不齊，用來驗證物理限制。</div>
   </div>
-
   <div class="mode-card active" id="cardProportional">
     <div class="mode-head">
       <span class="mode-title">2️⃣ 等比例白噪音</span>
-      <label class="switch">
-        <input type="checkbox" id="switchProportional" checked>
-        <span class="track"></span>
-      </label>
+      <label class="switch"><input type="checkbox" id="switchProportional" checked><span class="track"></span></label>
     </div>
     <div class="mode-caption">分貝越高於基準，白噪音音量等比例提高。推薦模式。</div>
   </div>
@@ -170,6 +151,17 @@
 </div>
 
 <div class="panel">
+  <h2>🔧 除錯工具</h2>
+  <label class="check-row"><input type="checkbox" id="simSignalCheck"> 使用模擬訊號（不需麥克風，純測邏輯用）</label>
+  <label class="check-row"><input type="checkbox" id="verboseCheck"> 詳細日誌模式（記錄每筆收送資料，較吵）</label>
+  <button class="btn-secondary" id="testSpeakerBtn">🔊 喇叭測試音（純音，跳過所有邏輯）</button>
+  <button class="btn-secondary" id="testMaskBtn">🌊 直接測試遮蔽音（60%，3秒，跳過網路）</button>
+  <button class="btn-secondary" id="testRemoteBtn">📡 模擬接收訊號（僅播放端測試用）</button>
+  <button class="btn-secondary" id="copyLogBtn">📋 複製完整除錯記錄</button>
+  <div class="mono debug-readout" id="debugReadout">尚未啟動</div>
+</div>
+
+<div class="panel">
   <div class="status-row" style="margin-bottom:8px;"><strong style="font-size:13px;">事件記錄</strong></div>
   <div class="log-panel" id="logPanel"></div>
 </div>
@@ -180,10 +172,12 @@
   let maskingMaxVolume = 0.6, proportionalRangeDb = 15;
   const minPulseDuration = 0.25, pulseIntervalMin = 1.5, pulseIntervalMax = 8.0;
   const calibrationDuration = 5, smoothingFactor = 0.15;
+  const streamChunkSize = 2048;
 
   let activeMode = 'proportional', connectionMode = 'standalone';
-  
-  // DOM 綁定
+  let useSimulatedSignal = false, verboseLogging = false;
+  let telemetrySentCount = 0, telemetryReceivedCount = 0, audioChunksReceivedCount = 0;
+
   const stateText = document.getElementById('stateText');
   const dbText = document.getElementById('dbText');
   const baselineText = document.getElementById('baselineText');
@@ -203,6 +197,12 @@
   const connDot = document.getElementById('connDot');
   const connText = document.getElementById('connText');
   const segButtons = document.querySelectorAll('.seg-btn');
+  const simSignalCheck = document.getElementById('simSignalCheck');
+  const verboseCheck = document.getElementById('verboseCheck');
+  const debugReadout = document.getElementById('debugReadout');
+
+  simSignalCheck.addEventListener('change', () => { useSimulatedSignal = simSignalCheck.checked; log('模擬訊號模式：' + (useSimulatedSignal ? '開啟' : '關閉')); });
+  verboseCheck.addEventListener('change', () => { verboseLogging = verboseCheck.checked; log('詳細日誌模式：' + (verboseLogging ? '開啟' : '關閉')); });
 
   function bindSlider(sliderId, valueId, onChange, formatter) {
     const slider = document.getElementById(sliderId);
@@ -235,11 +235,10 @@
     const isPlayer = connectionMode === 'player';
     roomPanel.style.display = isStandalone ? 'none' : 'block';
     modePanel.style.display = isPlayer ? 'none' : 'block';
-    document.getElementById('thresholdRow').style.display = isPlayer ? 'none' : 'block';
-    document.getElementById('pulseCountRow').style.display = isPlayer ? 'none' : 'block';
-    document.getElementById('clearDelayRow').style.display = isPlayer ? 'none' : 'block';
-    document.getElementById('rangeRow').style.display = isPlayer ? 'none' : 'block';
-    document.getElementById('maxVolRow').style.display = isPlayer ? 'none' : 'block';
+    ['thresholdRow','pulseCountRow','clearDelayRow','rangeRow'].forEach(id => {
+      document.getElementById(id).style.display = isPlayer ? 'none' : 'block';
+    });
+    document.getElementById('maxVolRow').style.display = isPlayer ? 'block' : (isStandalone ? 'block' : 'none');
     recalBtn.style.display = isPlayer ? 'none' : 'block';
     startBtn.textContent = isPlayer ? '啟用播放' : '開始偵測';
     startBtn.disabled = !isStandalone && !roomConnected;
@@ -266,7 +265,7 @@
     ws.onopen = () => {
       roomConnected = true;
       connDot.classList.add('on');
-      connText.textContent = '已配對';
+      connText.textContent = '已連線，等待對方加入';
       connectBtn.textContent = '取消';
       startBtn.disabled = false;
       log('已連線：' + code, 'mode');
@@ -278,13 +277,19 @@
       connText.textContent = '未連線';
       connectBtn.textContent = '連線';
       startBtn.disabled = connectionMode !== 'standalone';
+      log('連線已關閉', 'warn');
     };
-    ws.onerror = () => log('連線錯誤');
+    ws.onerror = () => log('連線錯誤', 'warn');
     ws.onmessage = (e) => {
       if (e.data instanceof ArrayBuffer) {
+        audioChunksReceivedCount++;
+        if (verboseLogging) log('← 收到音訊區塊：' + e.data.byteLength + ' bytes（累計 ' + audioChunksReceivedCount + '）');
         if (connectionMode === 'player') handleIncomingAudio(e.data);
       } else {
-        try { handleMsg(JSON.parse(e.data)); } catch(err) {}
+        try {
+          const msg = JSON.parse(e.data);
+          handleMsg(msg);
+        } catch(err) { log('⚠️ 收到無法解析的訊息：' + e.data, 'warn'); }
       }
     };
   }
@@ -293,16 +298,21 @@
   function handleMsg(msg) {
     if (msg.type === 'peer_joined') {
       connText.textContent = '已配對';
-      log('對方加入', 'mode');
+      log('✅ 對方已加入房間', 'mode');
+    } else if (msg.type === 'peer_left') {
+      connText.textContent = '已連線，等待對方加入';
+      log('⚠️ 對方已離開房間', 'warn');
     } else if (msg.type === 'telemetry' && connectionMode === 'player') {
+      telemetryReceivedCount++;
+      if (verboseLogging) log('← 收到: db=' + msg.db + ' intensity=' + (msg.intensity||0).toFixed(2) + ' state=' + msg.state + '（累計 ' + telemetryReceivedCount + '）');
       applyRemoteTelemetry(msg);
     }
   }
 
   let state = 'stopped', audioCtx, analyser, micSource, dataBuffer;
-  let maskGain, maskSource, invertGain, pollTimer;
+  let maskGain, maskSource, invertGain, streamProcessor, pollTimer;
   let calibrationStart = null, calibrationSamples = [];
-  let ambientBaseline = -50, smoothedDb = -50;
+  let ambientBaseline = -50, smoothedDb = -50, simClock = 0;
   let pulseStart = null, confirmedPulses = [], lastSnoreAt = null;
 
   function log(msg, cls) {
@@ -312,6 +322,7 @@
     if (cls) div.className = cls;
     logPanel.appendChild(div);
     logPanel.scrollTop = logPanel.scrollHeight;
+    console.log('[SnoreGuard]', msg);
   }
 
   function setStateUI(label, cssClass) {
@@ -324,53 +335,136 @@
     maskText.textContent = isOn ? '介入中' : '未介入';
   }
 
+  // ---------- 除錯工具 ----------
+  function testSpeaker() {
+    let ctx = audioCtx, isTemp = false;
+    if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); isTemp = true; }
+    if (ctx.state === 'suspended') ctx.resume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 440;
+    gain.gain.value = 0.3;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 1.5);
+    log('🔊 播放純音測試（440Hz，1.5秒，audioCtx.state=' + ctx.state + ')');
+    if (isTemp) setTimeout(() => { try { ctx.close(); } catch(e){} }, 2000);
+  }
+  document.getElementById('testSpeakerBtn').addEventListener('click', testSpeaker);
+
+  function testMaskingDirectly() {
+    if (!audioCtx || !maskGain) { log('⚠️ 尚未啟動（先按"開始"或"啟用播放"），無法測試', 'warn'); return; }
+    log('🌊 直接拉高遮蔽音到 60%，持續 3 秒（audioCtx.state=' + audioCtx.state + '）');
+    maskGain.gain.setTargetAtTime(0.6, audioCtx.currentTime, 0.05);
+    updateInterveningUI(true);
+    setTimeout(() => {
+      maskGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+      updateInterveningUI(false);
+      log('🌊 遮蔽音測試結束');
+    }, 3000);
+  }
+  document.getElementById('testMaskBtn').addEventListener('click', testMaskingDirectly);
+
+  function simulateIncomingTelemetry() {
+    if (connectionMode !== 'player') { log('⚠️ 此測試只適用於「雙機－播放端」模式', 'warn'); return; }
+    if (!audioCtx || !maskGain) { log('⚠️ 尚未按「啟用播放」，無法測試', 'warn'); return; }
+    log('📡 開始模擬訊號：intensity 0→1→0（6秒）');
+    let t = 0;
+    const interval = setInterval(() => {
+      t += 0.2;
+      const intensity = Math.max(0, Math.sin((t / 6) * Math.PI));
+      applyRemoteTelemetry({ db: ambientBaseline + intensity * 20, ambientBaseline: ambientBaseline, state: intensity > 0.3 ? 'snoring' : 'idle', intensity: intensity });
+      if (t >= 6) { clearInterval(interval); log('📡 模擬訊號測試結束'); }
+    }, 200);
+  }
+  document.getElementById('testRemoteBtn').addEventListener('click', simulateIncomingTelemetry);
+
+  document.getElementById('copyLogBtn').addEventListener('click', () => {
+    const text = Array.from(logPanel.children).map(d => d.textContent).join('\n');
+    const report = '=== SnoreGuard 除錯記錄 ===\n時間: ' + new Date().toLocaleString('zh-TW') +
+      '\n連線模式: ' + connectionMode + ' / 介入模式: ' + activeMode +
+      '\nAudioContext: ' + (audioCtx ? audioCtx.state + ' @ ' + audioCtx.sampleRate + 'Hz' : '未建立') +
+      '\nWebSocket: ' + (ws ? ['CONNECTING','OPEN','CLOSING','CLOSED'][ws.readyState] : '未連線') +
+      '\n送出 telemetry 次數: ' + telemetrySentCount + ' / 收到 telemetry 次數: ' + telemetryReceivedCount + ' / 收到音訊區塊次數: ' + audioChunksReceivedCount +
+      '\n\n--- 事件記錄 ---\n' + text;
+    navigator.clipboard.writeText(report).then(() => log('✅ 已複製完整除錯記錄，貼給 Claude 即可')).catch(() => log('⚠️ 複製失敗，請手動選取記錄文字', 'warn'));
+  });
+
+  function updateDebugReadout() {
+    debugReadout.textContent = [
+      'AudioContext: ' + (audioCtx ? audioCtx.state + ' @ ' + audioCtx.sampleRate + 'Hz' : '未建立'),
+      'maskGain 即時值: ' + (maskGain ? maskGain.gain.value.toFixed(3) : 'N/A'),
+      'WebSocket: ' + (ws ? ['連線中','已開啟','關閉中','已關閉'][ws.readyState] : '未連線'),
+      '連線模式: ' + connectionMode + ' / 介入模式: ' + activeMode + ' / 狀態機: ' + state,
+      '送出: ' + telemetrySentCount + ' / 收到telemetry: ' + telemetryReceivedCount + ' / 收到音訊塊: ' + audioChunksReceivedCount
+    ].join('\n');
+  }
+  setInterval(updateDebugReadout, 500);
+
+  // ---------- 啟動 / 停止 ----------
   async function start() {
     if (connectionMode === 'player') {
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        log('AudioContext 建立，初始狀態=' + audioCtx.state);
+        if (audioCtx.state === 'suspended') { await audioCtx.resume(); log('AudioContext.resume() 完成，現在狀態=' + audioCtx.state); }
         setupMaskingNoise();
         state = 'idle';
         setStateUI('等待對方...', 'state-idle');
-        log('播放端已啟用');
+        log('播放端已啟用，等待偵測端資料');
         startBtn.textContent = '停止';
         return;
       } catch(err) {
-        log('播放端初始化失敗：' + err.message);
+        log('⚠️ 播放端初始化失敗：' + err.message, 'warn');
         return;
       }
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: false }});
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') await audioCtx.resume();
-      micSource = audioCtx.createMediaStreamSource(stream);
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 2048;
-      dataBuffer = new Float32Array(analyser.fftSize);
-      micSource.connect(analyser);
+      if (!useSimulatedSignal) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: false }});
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        micSource = audioCtx.createMediaStreamSource(stream);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 2048;
+        dataBuffer = new Float32Array(analyser.fftSize);
+        micSource.connect(analyser);
+        log('使用真實麥克風，AudioContext 狀態=' + audioCtx.state);
+      } else {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        simClock = 0;
+        log('使用模擬訊號（不需麥克風），AudioContext 狀態=' + audioCtx.state);
+      }
 
       setupMaskingNoise();
-      if (connectionMode === 'standalone') setupPhaseInvert();
+      if (!useSimulatedSignal) {
+        if (connectionMode === 'standalone') setupPhaseInvert();
+        if (connectionMode === 'detector') setupAudioStreamer();
+      } else if (connectionMode !== 'standalone' || activeMode === 'phaseInvert') {
+        log('⚠️ 模擬訊號模式不支援 ANC（需要真實音訊波形），相位反轉相關功能已停用', 'warn');
+      }
 
       calibrationStart = Date.now();
       calibrationSamples = [];
       state = 'calibrating';
       setStateUI('校準中...', 'state-calibrating');
-      log('開始校準');
+      log('開始校準（' + calibrationDuration + ' 秒）');
 
       pollTimer = setInterval(tick, 80);
       startBtn.textContent = '停止';
       recalBtn.disabled = false;
     } catch(err) {
-      log('初始化失敗：' + err.message);
+      log('⚠️ 初始化失敗：' + err.message, 'warn');
     }
   }
 
   function stop() {
     clearInterval(pollTimer);
     if (maskSource) { try { maskSource.stop(); } catch(e){} }
+    if (streamProcessor) { try { streamProcessor.disconnect(); } catch(e){} }
     if (audioCtx) { try { audioCtx.close(); } catch(e){} }
     state = 'stopped';
     setStateUI('已停止', 'state-idle');
@@ -398,12 +492,8 @@
     maskGain.gain.value = 0;
     maskSource.connect(maskGain);
     maskGain.connect(audioCtx.destination);
-    try {
-      maskSource.start(0);
-      log('褐噪音已啟動');
-    } catch(err) {
-      log('褐噪音啟動失敗');
-    }
+    try { maskSource.start(0); log('褐噪音音源已啟動並連接到輸出'); }
+    catch(err) { log('⚠️ 褐噪音啟動失敗：' + err.message, 'warn'); }
   }
 
   function setupPhaseInvert() {
@@ -418,10 +508,32 @@
     micSource.connect(processor);
     processor.connect(invertGain);
     invertGain.connect(audioCtx.destination);
+    log('單機相位反轉節點已建立');
+  }
+
+  // 偵測端：擷取麥克風訊號並在 ANC 模式 + 打呼中時，以二進位串流送給播放端
+  function setupAudioStreamer() {
+    streamProcessor = audioCtx.createScriptProcessor(streamChunkSize, 1, 1);
+    streamProcessor.onaudioprocess = (e) => {
+      if (activeMode !== 'phaseInvert') return;
+      if (state !== 'snoring') return;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      const input = e.inputBuffer.getChannelData(0);
+      const chunk = new Float32Array(input.length);
+      chunk.set(input);
+      ws.send(chunk.buffer);
+      if (verboseLogging) log('→ 送出音訊區塊：' + chunk.buffer.byteLength + ' bytes');
+    };
+    const silentSink = audioCtx.createGain();
+    silentSink.gain.value = 0;
+    micSource.connect(streamProcessor);
+    streamProcessor.connect(silentSink);
+    silentSink.connect(audioCtx.destination);
+    log('偵測端音訊串流節點已建立（ANC 模式 + 打呼中才會送出）');
   }
 
   function handleIncomingAudio(arrayBuffer) {
-    if (!audioCtx) return;
+    if (!audioCtx) { log('⚠️ 收到音訊區塊但 audioCtx 不存在，已忽略', 'warn'); return; }
     const floatData = new Float32Array(arrayBuffer);
     const buffer = audioCtx.createBuffer(1, floatData.length, audioCtx.sampleRate);
     const channel = buffer.getChannelData(0);
@@ -445,11 +557,10 @@
       updateInterveningUI(vol > 0.02);
     } else {
       maskGain.gain.setTargetAtTime(0, now, 0.1);
-      if (invertGain && state === 'snoring') {
-        invertGain.gain.setTargetAtTime(0.3, now, 0.1);
-        updateInterveningUI(true);
-      } else if (invertGain) {
-        invertGain.gain.setTargetAtTime(0, now, 0.1);
+      if (invertGain) {
+        const armed = state === 'snoring' ? 0.3 : 0;
+        invertGain.gain.setTargetAtTime(armed, now, 0.1);
+        updateInterveningUI(armed > 0);
       }
     }
   }
@@ -458,15 +569,19 @@
     dbText.textContent = msg.db.toFixed(1) + ' dB（對方）';
     baselineText.textContent = '對方基準：' + msg.ambientBaseline.toFixed(1) + ' dB';
     updateMeter(msg.db, msg.ambientBaseline);
+    setStateUI(msg.state === 'snoring' ? '對方打呼中' : '對方安靜', msg.state === 'snoring' ? 'state-snoring' : 'state-idle');
 
-    if (!maskGain || !audioCtx) return;
+    if (!maskGain || !audioCtx) {
+      log('⚠️ 收到對方資料但播放端音訊尚未啟動！請先按「啟用播放」', 'warn');
+      return;
+    }
     const vol = (msg.intensity || 0) * maskingMaxVolume;
     maskGain.gain.setTargetAtTime(vol, audioCtx.currentTime, 0.1);
     updateInterveningUI(vol > 0.02);
   }
 
   function tick() {
-    const db = computeDb();
+    const db = useSimulatedSignal ? syntheticDb() : computeDb();
     smoothedDb += (db - smoothedDb) * smoothingFactor;
     dbText.textContent = db.toFixed(1) + ' dB';
     updateMeter(db, ambientBaseline);
@@ -481,11 +596,19 @@
     if (connectionMode === 'standalone') applyMode();
   }
 
+  function syntheticDb() {
+    simClock += 0.08;
+    const cyclePos = simClock % 3.5;
+    const inPulse = cyclePos < 0.6;
+    const base = inPulse ? -20 : -46;
+    return base + (Math.random() * 3 - 1.5);
+  }
+
   function computeDb() {
     analyser.getFloatTimeDomainData(dataBuffer);
     let sum = 0;
     for (let i = 0; i < dataBuffer.length; i++) sum += dataBuffer[i] * dataBuffer[i];
-    return 20 * Math.log10(Math.sqrt(sum / dataBuffer.length));
+    return 20 * Math.log10(Math.sqrt(sum / dataBuffer.length) || 0.0000001);
   }
 
   function updateMeter(db, baseline) {
@@ -513,15 +636,9 @@
     const threshold = ambientBaseline + thresholdOffsetDb;
     const now = Date.now();
     if (db >= threshold) {
-      if (pulseStart === null) {
-        pulseStart = now;
-      } else if ((now - pulseStart) / 1000 >= minPulseDuration) {
-        registerConfirmedPulse(now);
-        pulseStart = null;
-      }
-    } else {
-      pulseStart = null;
-    }
+      if (pulseStart === null) pulseStart = now;
+      else if ((now - pulseStart) / 1000 >= minPulseDuration) { registerConfirmedPulse(now); pulseStart = null; }
+    } else pulseStart = null;
   }
 
   function registerConfirmedPulse(now) {
@@ -534,19 +651,11 @@
     let isRegular = true;
     for (let i = 1; i < recent.length; i++) {
       const interval = (recent[i] - recent[i - 1]) / 1000;
-      if (interval < pulseIntervalMin || interval > pulseIntervalMax) {
-        isRegular = false;
-        break;
-      }
+      if (interval < pulseIntervalMin || interval > pulseIntervalMax) { isRegular = false; break; }
     }
-
     if (isRegular) {
       lastSnoreAt = now;
-      if (state !== 'snoring') {
-        state = 'snoring';
-        setStateUI('偵測到鼾聲', 'state-snoring');
-        log('打呼開始', 'snore');
-      }
+      if (state !== 'snoring') { state = 'snoring'; setStateUI('偵測到鼾聲', 'state-snoring'); log('打呼開始', 'snore'); }
     }
   }
 
@@ -562,13 +671,9 @@
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
     const lower = ambientBaseline, upper = ambientBaseline + thresholdOffsetDb + proportionalRangeDb;
     const intensity = Math.max(0, Math.min(1, (smoothedDb - lower) / Math.max(1, (upper - lower))));
-    ws.send(JSON.stringify({
-      type: 'telemetry',
-      db: Number(db.toFixed(1)),
-      ambientBaseline: Number(ambientBaseline.toFixed(1)),
-      state: state,
-      intensity: intensity
-    }));
+    telemetrySentCount++;
+    ws.send(JSON.stringify({ type: 'telemetry', db: Number(db.toFixed(1)), ambientBaseline: Number(ambientBaseline.toFixed(1)), state: state, intensity: intensity }));
+    if (verboseLogging) log('→ 送出: db=' + db.toFixed(1) + ' intensity=' + intensity.toFixed(2) + ' state=' + state + '（累計 ' + telemetrySentCount + '）');
   }
 
   startBtn.addEventListener('click', () => { if (state === 'stopped') start(); else stop(); });
